@@ -1,11 +1,17 @@
 (ns scratch
 (:use (incanter core stats charts))
 (:require [clojure.pprint]
-          [tanken-daten.core :refer :all] :reload-all))
+          [tanken-daten.collect :as tdc] :reload-all))
 
 
-(defn preise [tankstelle sorte]
-    (->> "U:/Userdaten/Ablage/Tankstellenpreise/preise.db"
+(def db-file "/home/michael/Dokumente/Tankstellenpreise/preise.db")
+
+;;(def db-file "U:/Userdaten/Ablage/Tankstellenpreise/preise.db")
+
+(tdc/collect-data db-file)
+
+(defn preise [db-file tankstelle sorte]
+    (->>   db-file
            (clojure.java.io/reader)
            java.io.PushbackReader.
            (clojure.edn/read )
@@ -28,12 +34,13 @@
 (defn y-vals [list-of-x-y-pairs]
   (->> list-of-x-y-pairs (map second)) )
 
+(def treibstoff "Super")
 
-(def w-super (preise "W" "Super"))
-(def r-super (preise "R" "Super"))
-(def s-super (preise "S" "Super"))
+(def w-super (preise db-file "W" treibstoff))
+(def r-super (preise db-file "R" treibstoff))
+(def s-super (preise db-file "S" treibstoff))
 
-(def v (time-series-plot (x-vals r-super) (y-vals r-super)))
+(def v (time-series-plot (x-vals r-super) (y-vals r-super)  :title (str "Preis je Liter " treibstoff) :x-label "Zeit" :y-label "EUR"))
 ;(def v (time-series-plot (x-vals w-super) (y-vals w-super)))
 ;(def v (time-series-plot (x-vals s-super) (y-vals s-super)))
 
@@ -46,5 +53,3 @@
 
 (view v)
 
-
-

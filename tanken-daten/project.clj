@@ -6,4 +6,3 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [enlive "1.1.4"]
                  [incanter "1.5.4"]])
-
