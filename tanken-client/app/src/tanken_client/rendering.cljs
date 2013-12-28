@@ -20,6 +20,7 @@
 ;; behavior. This example does not use the transmitter.
 
 (defn render-page [renderer [_ path] transmitter]
+  (.log js/console (str "render-page: " path))
   (let [;; The renderer that we are using here helps us map changes to
         ;; the UI tree to the DOM. It keeps a mapping of paths to DOM
         ;; ids. The `get-parent-id` function will return the DOM id of
@@ -41,13 +42,16 @@
     ;; Call the `html` function, passing the initial values for the
     ;; template. This returns an HTML string which is then added to
     ;; the DOM using Domina.
-    (dom/append! (dom/by-id parent) (html {:id id :message ""}))))
+    ;;(dom/append! (dom/by-id parent) (html {:id id :message ""}))
+    (dom/append! (dom/by-id parent) (html {})))
+    )
 
-(defn render-message [renderer [_ path _ new-value] transmitter]
+(defn render-tankstelle [renderer [_ path old-value new-value] transmitter]
   ;; This function responds to a :value event. It uses the
   ;; `update-t` function to update the template at `path` with the new
   ;; values in the passed map.
-  (templates/update-t renderer path {:message new-value}))
+  (.log js/console (str "render-tankstelle:" "path:" path  ", old:" old-value ", new: " new-value))
+  (templates/update-t renderer path {:id (->> new-value keys first) :name (->> new-value vals first :name) }))
 
 ;; The data structure below is used to map rendering data to functions
 ;; which handle rendering for that specific change. This function is
@@ -60,13 +64,15 @@
    ;; :greeting is a default name that is used when we don't
    ;; provide our own derives and emits. To name your own nodes,
    ;; create a custom derive or emit in the application's behavior.
-   [:node-create  [:greeting] render-page]
+   [:node-create  [:tankstellen] render-page]
    ;; All :node-destroy deltas for this path will be handled by the
    ;; library function `d/default-exit`.
-   [:node-destroy   [:greeting] d/default-exit]
+   [:node-destroy   [:tankstellen] d/default-exit]
    ;; All :value deltas for this path will be handled by the
-   ;; function `render-message`.
-   [:value [:greeting] render-message]])
+   ;; function `render-tankstelle`.
+   [:node-create [:tankstellen :*] render-tankstelle]
+   [:value [:tankstellen] render-tankstelle]
+   ])
 
 ;; In render-config, paths can use wildcard keywords :* and :**. :*
 ;; means exactly one segment with any value. :** means 0 or more

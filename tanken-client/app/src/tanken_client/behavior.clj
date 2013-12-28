@@ -6,7 +6,14 @@
 ;; test/tanken_client/behavior-test.clj.
 
 (defn set-value-transform [old-value message]
-  (:value message))
+  (let [value (:value message)]
+    (.log js/console (str "set-value-transform: old-value:" old-value  ", message:" message))
+    value))
+
+(defn add-tankstelle-transform [old-value message]
+  (let [tankstelle (:value message)]
+    (.log js/console (str "add-tankstelle-transform: " tankstelle ))
+    (assoc old-value (:id tankstelle) tankstelle)))
 
 (def example-app
   ;; There are currently 2 versions (formats) for dataflow
@@ -15,7 +22,10 @@
   ;; description will be assumed to be version 1 and an attempt
   ;; will be made to convert it to version 2.
   {:version 2
-   :transform [[:set-value [:greeting] set-value-transform]]})
+   :transform [;;[:set-value [:greeting] set-value-transform]
+               [:initialize [:tankstellen :*] set-value-transform]
+               [:initialize [:sorten] set-value-transform]
+               ]})
 
 ;; Once this behavior works, run the Data UI and record
 ;; rendering data which can be used while working on a custom

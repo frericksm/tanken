@@ -1,0 +1,107 @@
+[;; tanken-daten model
+
+ ;; Die Attribute einer Tankstelle
+
+  {:db/id #db/id[:db.part/db]
+   :db/ident :tanken.station/adac-id
+   :db/valueType :db.type/string
+   :db/cardinality :db.cardinality/one
+   :db/unique :db.unique/identity
+   :db/doc "Id der Tankstelle auf der ADAC-Seite"
+   :db.install/_attribute :db.part/db}
+  
+  {:db/id #db/id[:db.part/db]
+   :db/ident :tanken.station/name
+   :db/valueType :db.type/string
+   :db/cardinality :db.cardinality/one
+   :db/doc "Name der Tankstelle"
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db]
+   :db/ident :tanken.station/betreiber
+   :db/valueType :db.type/string
+   :db/cardinality :db.cardinality/one
+   :db/doc "Betreiber der Tankstelle"
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db]
+   :db/ident :tanken.station/strasse
+   :db/valueType :db.type/string
+   :db/cardinality :db.cardinality/one
+   :db/doc "Strasse der Tankstelle" 
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db]
+   :db/ident :tanken.station/plz
+   :db/valueType :db.type/string
+   :db/cardinality :db.cardinality/one
+   :db/doc "PLZ der Tankstelle"
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db]
+   :db/ident :tanken.station/ort
+   :db/valueType :db.type/string
+   :db/cardinality :db.cardinality/one
+   :db/doc "Ort der Tankstelle"
+   :db.install/_attribute :db.part/db}
+  
+  
+  
+  ;; Die Attrribute einer Preismeldung
+  
+  {:db/id #db/id[:db.part/db]
+   :db/ident :tanken.preismeldung/sorte
+   :db/valueType :db.type/string
+   :db/cardinality :db.cardinality/one
+   :db/doc "Name der Treibstoffsorte"
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db]
+   :db/ident :tanken.preismeldung/preis 
+   :db/valueType :db.type/bigdec
+   :db/cardinality :db.cardinality/one
+   :db/doc "Preis in EUR"
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db]
+   :db/ident :tanken.preismeldung/zeitpunkt 
+   :db/valueType :db.type/instant
+   :db/cardinality :db.cardinality/one
+   :db/doc "Zeitpunkt der Preismeldung"
+   :db.install/_attribute :db.part/db}
+  
+  {:db/id #db/id[:db.part/db]
+   :db/ident :tanken.preismeldung/station
+   :db/valueType :db.type/ref
+   :db/cardinality :db.cardinality/one
+   :db/doc "Tankstelle, die einen Preis gemeldet hat"
+   :db.install/_attribute :db.part/db}
+ 
+;; Funktion zur Speicherung einer neuen Preismeldung
+
+  {:db/id #db/id[:db.part/user]
+   :db/ident :tanken/erzeuge-preismeldung
+   :db/fn #db/fn { 
+          :lang "clojure"
+          :params [db adac-id zeitpunkt sorte preis]
+                  :code "(let [station (->> (datomic.api/q '[:find ?station
+                                                             :in $data ?adac-id 
+                                                             :where [$data ?station :tanken.station/adac-id ?adac-id]]
+                                                           db adac-id)
+                                            first first)
+                               preismeldungen (datomic.api/q '[:find ?pm
+                                                               :in $data ?station ?zeitpunkt ?sorte ?preis          
+                                                               :where [$data ?pm :tanken.preismeldung/zeitpunkt ?zeitpunkt ]
+                                                                      [$data ?pm :tanken.preismeldung/station   ?station   ]
+                                                                      [$data ?pm :tanken.preismeldung/sorte     ?sorte     ]
+                                                                      [$data ?pm :tanken.preismeldung/preis     ?preis     ]]
+                                                              db station zeitpunkt sorte preis)]
+                           (if (empty? preismeldungen)
+                             [{:db/id #db/id[:db.part/user -1]
+                               :tanken.preismeldung/station   station
+                               :tanken.preismeldung/sorte     sorte
+                               :tanken.preismeldung/zeitpunkt zeitpunkt
+                               :tanken.preismeldung/preis     preis}]
+                             []))" }
+   :db/doc "Erzeugt eine neue Preismeldung genau dann, wenn es noch keine Preismeldung zur Station zur 'adac-id', zum Zeitpunkt 'zeitpunkt' und der Sorte 'sorte' gibt"}
+]

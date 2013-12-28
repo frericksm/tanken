@@ -8,7 +8,7 @@
  ClojureScript application that you are building.
 -->
 <_within file="application.html">
-  
+
   <div id="content">
 
     <!--
@@ -40,6 +40,17 @@
 
       <div field="content:message" class="message">A Message</div>
 
+      <div>
+          Da geht doch was!
+      </div>
+
+    </div>
+
+    <div template="tankstellen">
+        <h4>Tankstellen</h4>
+      <ul>
+        <li template="tankstelle"><a field="href:id"><span field="content:name">Name der Tankstelle</span></a></li>
+      </ul>
     </div>
 
   </div>

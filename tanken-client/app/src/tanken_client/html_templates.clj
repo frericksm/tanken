@@ -14,6 +14,10 @@
   ;; The last argument to 'dtfn' is a set of fields that should be
   ;; treated as static fields (may only be set once). Dynamic templates
   ;; use ids to set values so you cannot dynamically set an id.
-  {:tanken-client-page (dtfn (tnodes "tanken-client.html" "hello") #{:id})})
+  ;;{:tanken-client-page (dtfn (tnodes "tanken-client.html" "hello") #{:id})}
+
+  {:tankstelle-li (dtfn (tnodes "tanken-client.html" "tankstelle") )
+   :tanken-client-page (dtfn (tnodes "tanken-client.html" "tankstellen" [[:li]]) )}
+  )
 
 ;; Note: this file will not be reloaded automatically when it is changed.

@@ -1,0 +1,19 @@
+;; Funktion zur Speicherung einer neuen Tankstelle
+
+  {:db/id #db/id[:db.part/user]
+   :db/ident :tanken/erzeuge-tankstelle
+   :db/fn #db/fn { 
+                  :lang "clojure"
+                  :params [db adac-id name]
+                  :code "(let [w (datomic.api/q 
+                           '[:find ?station
+                             :in $data ?adac-id          
+                             :where [$data ?station :tanken.station/adac-id ?adac-id   ]
+                            ]
+                           db adac-id)]
+                    (if (empty? w)
+                        [{:db/id #db/id[:db.part/user -1]
+                          :tanken.station/adac-id adac-id
+                          :tanken.station/name    name}]
+                        []))" }
+   :db/doc "Speichert eine neue Tankstelle genau dann, wenn es noch keine Tankstelle zur 'adac-id' gibt"}
