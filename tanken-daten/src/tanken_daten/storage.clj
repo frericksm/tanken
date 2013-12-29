@@ -1,30 +1,43 @@
 (ns tanken-daten.storage
   (:use [clojure.pprint])
-  (:require [net.cgrand.enlive-html :as e]
-            [clojure.edn :as edn]
-            [clojure.java.io :as io]
-            [clojure.set :as set]
+  (:require [clojure.java.io :as io]
             [datomic.api :as api]
             [tanken-daten.datomic-utils :as u]))
 
+(defn nameUUID
+  "Erzeugt eine UUID aus den name-parts"
+  [& name-parts]
+  (->> name-parts
+       (apply print-str)
+       (.getBytes)
+       (java.util.UUID/nameUUIDFromBytes)
+       ))
 
-(defn create-tankstelle
-  "Speichert die Daten einer Tanstelle"
-  [conn adac-id name betreiber strasse plz ort]
-  (let [query-result (api/q '[:find ?station
-                              :in $ ?adac-id
-                              :where [?station :tanken.station/adac-id ?adac-id]]
-                            (api/db conn)
-                            adac-id)]
-    (if (empty? query-result)
-      (api/transact conn
-                    [{:db/id #db/id[:db.part/user -1]
-                      :tanken.station/adac-id   adac-id
-                      :tanken.station/name      name
-                      :tanken.station/betreiber betreiber
-                      :tanken.station/strasse   strasse
-                      :tanken.station/plz       plz
-                      :tanken.station/ort       ort}]))))
+(defn tempid []
+  (api/tempid :db.part/user))
+
+(defn upsert-tankstelle-tx
+  "Liefert die Transaktion zum Insert oder Update der Daten einer Tankstelle.
+   Beachte: das Attribut :tanken.station/adac-id hat das Attribut :db/unique mit Wert :db.unique/identity"
+  [adac-id name betreiber strasse plz ort]
+  [{:db/id (api/tempid :db.part/user)
+    :tanken.station/adac-id   adac-id
+    :tanken.station/name      name
+    :tanken.station/betreiber betreiber
+    :tanken.station/strasse   strasse
+    :tanken.station/plz       plz
+    :tanken.station/ort       ort}])
+
+(defn upsert-preismeldung-tx
+  "Liefert die Transaktion zum Insert oder Update einer Preismeldung"
+  [station adac-id zeitpunkt sorte preis]
+  (let [id (nameUUID adac-id zeitpunkt sorte)]
+    [{:db/id (api/tempid :db.part/user)
+      :tanken.preismeldung/id        id
+      :tanken.preismeldung/station   station
+      :tanken.preismeldung/sorte     sorte
+      :tanken.preismeldung/zeitpunkt zeitpunkt
+      :tanken.preismeldung/preis     preis}]))
 
 (defn alle-tankstellen
   "Liefert alle Entities, die ein Attribut :tanken.station/adac-id besitzen"
@@ -36,17 +49,17 @@
               db)
        (map #(api/entity db (first %)))))
 
-(defn create-preismeldung
-  "Speichert eine Preismeldung"
-  [conn adac-id zeitpunkt sorte preis]  
-  (api/transact conn [[:tanken/erzeuge-preismeldung adac-id zeitpunkt sorte preis]]))
-
 (defn alle-preismeldungen
-  "Liefert alle Entities, die ein A" [db]
+  "Liefert alle Entities zu Preismeldungen.
+Das sind Entities mit dem Attribut :tanken.preismeldung/id"
+  [db]
   (api/q '[:find ?pm
            :in $data
-           :where [$data ?pm :tanken.preismeldung/zeitpunkt]]
+           :where [$data ?pm :tanken.preismeldung/id]]
            db))
+
+(defn load-data [conn tx-data]
+  (api/transact conn tx-data))
 
 (defn load-schema
   "Load datomic schema "
@@ -77,7 +90,6 @@ Gibt das modifizierte system zurück."
 (defn stop [{:keys [db] :as system}]
   (if-let [conn (get-in system [:db :connection])]
     (do
-      ;(delete-db system)
       (api/release conn)
       (update-in  system [:db :connection] (constantly nil)))
     system))
