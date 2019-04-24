@@ -58,8 +58,8 @@
   "Extrahiert die Öffnungzeiten der Tankstelle"
   [page-content]
   (->> (e/select page-content
-                 #{[:#wucKraftstoffpreiseDeDetail-28 :.box-row :.box-col1]
-                   [:#wucKraftstoffpreiseDeDetail-28 :.box-row :.box-col2]})
+                 #{[:#wucKraftstoffpreiseDeDetail-29  :.box-col1]
+                   [:#wucKraftstoffpreiseDeDetail-29  :.box-col2]})
        (map :content)
        (map first)
        (map clojure.string/trim)
