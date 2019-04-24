@@ -1,5 +1,6 @@
 (ns tanken-daten.core
-  (:require [tanken-daten.collect :as c]))
+  (:require [tanken-daten.collect :as c]
+[tanken-daten.adac-reader :as adac-reader ]))
 
 
 (defn -main
@@ -10,6 +11,6 @@
   (let [db-file (first args)]
     (while true
        (println "Collect at: " (java.util.Date.))
-       (c/collect-data db-file)
-       (Thread/sleep (* 1000 60 17)))))
+       (prn (adac-reader/collect-data adac-reader/adac-ids))
+       (Thread/sleep (* 5000  #_60 #_17)))))
 

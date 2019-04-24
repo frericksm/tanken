@@ -1,6 +1,0 @@
-out/
-target/
-logs/
-.lein-repl-history
-.repl
-*~

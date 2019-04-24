@@ -4,15 +4,17 @@
 
 
 ;; The string to format a url with one of the adac-ids
-(def url-format "http://www.adac.de/infotestrat/tanken-kraftstoffe-und-antrieb/kraftstoffpreise/detail.aspx?ItpId=%s")
+(def url-format "https://www.adac.de/infotestrat/tanken-kraftstoffe-und-antrieb/kraftstoffpreise/detail.aspx?ItpId=%s")
 
 ;; List of ids of petrol adac-ids  (as required by http://www.adac.de/infotestrat...)
 (def adac-ids (set  [ "-1262786956"  ;; "Westfalen"
                       "-878843771"   ;; "Shell"
                       "-415369586"   ;; "Ratio"
                       "-1482640195"  ;; "Mr. Wash"
-                      "-1520029345"]  ;; "Raiffaisen"
-                    ))
+                     "-1520029345"  ;; "Raiffaisen"
+                     "699438462"    ;; Freie  Hafenstrasse
+                     
+                     ]  ))
 
 (defn adac-url [adac-id]
   (format url-format adac-id))
