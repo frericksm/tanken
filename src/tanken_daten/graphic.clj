@@ -1,5 +1,5 @@
 (ns tanken-daten.graphic
-  (:use (incanter core stats charts))
+  #_(:use (incanter core stats charts))
   (:require [clojure.pprint]
           [tanken-daten.analyze :as a] ))
 
