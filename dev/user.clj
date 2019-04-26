@@ -8,6 +8,7 @@
             [tanken-daten.system :as system]
             [tanken-daten.storage :as storage]
             [tanken-daten.collect :as c]
+            [tanken-daten.adac-reader :as adac-reader]
             [datomic.api :as dapi]
             ))
 
