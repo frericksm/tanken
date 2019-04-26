@@ -1,8 +1,8 @@
 (ns tanken-daten.analyze
-  (:use (incanter core stats charts)))
+  #_(:use (incanter core stats charts)))
 
 (defn db-as-set [db-file]
-  "Reads the wohle db als clojure set from file"
+  "Reads the whole db als clojure set from file"
   (->> db-file
        (clojure.java.io/reader)
        java.io.PushbackReader.
