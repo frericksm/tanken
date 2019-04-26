@@ -1,5 +1,5 @@
 (ns scratch
-(:use (incanter core stats charts))
+#_(:use (incanter core stats charts))
 (:require [clojure.pprint]
           [tanken-daten.collect :as tdc]
           ))
