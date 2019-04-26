@@ -14,12 +14,7 @@
                              (get a2e id (storage/tempid))))
                  {}))))
 
-(defn preismeldung-id
-  "Erzeugt eine eindeutige Id zu einer Preismeldung"
-  [adac-id pm]
-  (let [zeitpunkt (:tanken.preismeldung/zeitpunkt pm)
-        sorte     (:tanken.preismeldung/sorte pm)]
-    (storage/nameUUID adac-id zeitpunkt sorte)))
+
 
 (defn insert [vec pos item] 
   (apply conj (subvec vec 0 pos) item (subvec vec pos)))
@@ -43,9 +38,8 @@
                    (fn [preismeldungen]
                      (->> preismeldungen
                           (map #(assoc % :db/id (storage/tempid)))
-                          (map #(assoc % :tanken.preismeldung/station e-id))
-                          (map #(assoc % :tanken.preismeldung/id
-                                       (preismeldung-id adac-id %)))))))))
+                          (map #(assoc % :tanken.preismeldung/station [:tanken.station/adac-id adac-id]))
+                         ))))))
 
 (defn extract-data
   ""
@@ -65,26 +59,39 @@
       (concat opening-times)
       ))
 
-(defn task-factory [conn adac-ids]
-  (fn []
-    (do (println "\nRunning ...")
-        (try
-          (->> (extract-data conn adac-ids)
+(defn collect 
+  "Sammelt die Daten zu den den 'adac-ids und speichert sie in der datomic connection 'conn"
+  [conn adac-ids]
+  (->> (extract-data conn adac-ids)
                (map to-tx)
                (apply concat)
                (flatten)
                ;((fn [d] (prn d) d))
                (storage/load-data conn)
                )
+  )
+(defn task-factory 
+  "Liefert eine Funktion, die collect  aufruft"
+  [conn adac-ids]
+  (fn []
+    (do (println "\nRunning ...")
+        (try (collect conn adac-ids)
+          
           (catch Exception e
             (println "caught exception: " (.getMessage e)))))))
 
-(defn start [system]
+(defn start 
+  "Startet diese Komponente"
+  [system]
   (let [scheduler (->> system :scheduler)
         conn      (->> system :db :connection)
-        task      (task-factory conn adac/adac-ids)]
-    (.scheduleWithFixedDelay scheduler task 0 17 java.util.concurrent.TimeUnit/MINUTES))
-  system)
+        task      (task-factory conn adac/adac-ids)
+stations-tx (adac/stations-tx)]
+
+(storage/store-stations-to-db conn stations-tx ) ;; lade alle tankstelle in die db
+(task)     ;; führe einmal die taks aus
+#_(.scheduleWithFixedDelay scheduler task 0 1 java.util.concurrent.TimeUnit/MINUTES) ;; führe die Task regelmässig aus
+  system))
 
 (defn stop [system]
   system)
