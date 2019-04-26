@@ -2,133 +2,125 @@
 
  ;; Die Attribute einer Tankstelle
 
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.station/adac-id
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one
-   :db/unique :db.unique/identity
-   :db/doc "Id der Tankstelle auf der ADAC-Seite"
-   :db.install/_attribute :db.part/db}
-  
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.station/name
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one
-   :db/doc "Name der Tankstelle"
-   :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.station/adac-id
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/unique :db.unique/identity
+  :db/doc "Id der Tankstelle auf der ADAC-Seite"
+  :db.install/_attribute :db.part/db}
+ 
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.station/name
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Name der Tankstelle"
+  :db.install/_attribute :db.part/db}
 
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.station/betreiber
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one
-   :db/doc "Betreiber der Tankstelle"
-   :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.station/betreiber
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Betreiber der Tankstelle"
+  :db.install/_attribute :db.part/db}
 
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.station/strasse
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one
-   :db/doc "Strasse der Tankstelle" 
-   :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.station/strasse
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Strasse der Tankstelle" 
+  :db.install/_attribute :db.part/db}
 
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.station/plz
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one
-   :db/doc "PLZ der Tankstelle"
-   :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.station/plz
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "PLZ der Tankstelle"
+  :db.install/_attribute :db.part/db}
 
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.station/ort
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one
-   :db/doc "Ort der Tankstelle"
-   :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.station/ort
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Ort der Tankstelle"
+  :db.install/_attribute :db.part/db}
 
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.station.opening-time/montag
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one
-   :db/doc "Öffnungszeiten am Montag"
-   :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.station.opening-time/montag
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Öffnungszeiten am Montag"
+  :db.install/_attribute :db.part/db}
 
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.station.opening-time/dienstag
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one
-   :db/doc "Öffnungszeiten am Dienstag"
-   :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.station.opening-time/dienstag
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Öffnungszeiten am Dienstag"
+  :db.install/_attribute :db.part/db}
 
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.station.opening-time/mittwoch
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one
-   :db/doc "Öffnungszeiten am Mittwoch"
-   :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.station.opening-time/mittwoch
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Öffnungszeiten am Mittwoch"
+  :db.install/_attribute :db.part/db}
 
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.station.opening-time/donnerstag
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one
-   :db/doc "Öffnungszeiten am Donnerstag"
-   :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.station.opening-time/donnerstag
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Öffnungszeiten am Donnerstag"
+  :db.install/_attribute :db.part/db}
 
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.station.opening-time/freitag
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one
-   :db/doc "Öffnungszeiten am Freitag"
-   :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.station.opening-time/freitag
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Öffnungszeiten am Freitag"
+  :db.install/_attribute :db.part/db}
 
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.station.opening-time/samstag
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one
-   :db/doc "Öffnungszeiten am Samstag"
-   :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.station.opening-time/samstag
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Öffnungszeiten am Samstag"
+  :db.install/_attribute :db.part/db}
 
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.station.opening-time/sonntag
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one
-   :db/doc "Öffnungszeiten am Sonntag"
-   :db.install/_attribute :db.part/db}
-  
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.station.opening-time/sonntag
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Öffnungszeiten am Sonntag"
+  :db.install/_attribute :db.part/db}
+ 
  ;; Die Attrribute einer Preismeldung
-  
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.preismeldung/id
-   :db/valueType :db.type/uuid
-   :db/cardinality :db.cardinality/one
-   :db/unique :db.unique/identity
-   :db/doc "Die eindeutige Id einer Preismeldung"
-   :db.install/_attribute :db.part/db}
+ 
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.preismeldung/sorte
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Name der Treibstoffsorte"
+  :db.install/_attribute :db.part/db}
 
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.preismeldung/sorte
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one
-   :db/doc "Name der Treibstoffsorte"
-   :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.preismeldung/preis 
+  :db/valueType :db.type/bigdec
+  :db/cardinality :db.cardinality/one
+  :db/doc "Preis in EUR"
+  :db.install/_attribute :db.part/db}
 
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.preismeldung/preis 
-   :db/valueType :db.type/bigdec
-   :db/cardinality :db.cardinality/one
-   :db/doc "Preis in EUR"
-   :db.install/_attribute :db.part/db}
-
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.preismeldung/zeitpunkt 
-   :db/valueType :db.type/instant
-   :db/cardinality :db.cardinality/one
-   :db/doc "Zeitpunkt der Preismeldung"
-   :db.install/_attribute :db.part/db}
-  
-  {:db/id #db/id[:db.part/db]
-   :db/ident :tanken.preismeldung/station
-   :db/valueType :db.type/ref
-   :db/cardinality :db.cardinality/one
-   :db/doc "Tankstelle, die einen Preis gemeldet hat"
-   :db.install/_attribute :db.part/db}
-]
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.preismeldung/zeitpunkt 
+  :db/valueType :db.type/instant
+  :db/cardinality :db.cardinality/one
+  :db/doc "Zeitpunkt der Preismeldung"
+  :db.install/_attribute :db.part/db}
+ 
+ {:db/id #db/id[:db.part/db]
+  :db/ident :tanken.preismeldung/station
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/doc "Tankstelle, die einen Preis gemeldet hat"
+  :db.install/_attribute :db.part/db}
+ ]
