@@ -11,6 +11,10 @@
 
 (defn do-tx-user [conn data-seq]
   (do-tx-helper conn :db.part/user data-seq))
-(defn tempid "Erzeugt eine temp-id für eine datomic transaction " 
+(defn tempid "Erzeugt eine temp-id für eine datomic transaction" 
   []
   (api/tempid :db.part/user))
+
+
+(defn load-data [conn tx-data]
+  (api/transact conn tx-data))
