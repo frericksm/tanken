@@ -1,6 +1,8 @@
 (ns tanken-daten.adac-reader
+  "Liest und representiert  Daten zu den Tankstellen "
   (:require [net.cgrand.enlive-html :as e]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [datomic.api :as api]))
 
 
 ;; The string to format a url with one of the adac-ids
@@ -14,19 +16,20 @@
                      "-1520029345"  ;; "Raiffaisen"
                      "699438462"    ;; Freie  Hafenstrasse
                      
-                     ]  ))
+                     ]))
 
-(defn adac-url [adac-id]
-  (format url-format adac-id))
+  (defn adac-url "Die URL  der Tankstelle zur 'adac-id'"
+    [adac-id]
+    (format url-format adac-id))
 
 (defn fetch-page
-  "fetch url with enlive"
+  "mit enlive geparste  Representation der 'url'"
   [url]
   (e/html-resource (io/reader url)))
 
 (defn extract-tankstelle
   "Extract address details of the petrol station"
-  [page-content]
+  [page-content adac-id]
   (->> page-content
        ((fn [p] (e/select p #{[:#wucKraftstoffpreiseDeDetailAdresse-3 ]
                              [:#wucKraftstoffpreiseDeDetailAdresse-6 ]
@@ -38,7 +41,8 @@
        ((fn [[name betreiber strasse plz-ort]]
           (let [plz (re-find #"\d+" plz-ort)
                 ort (->> (subs plz-ort (count plz)) (re-find #"\W*(.*)") last )]
-            (hash-map :tanken.station/name name
+            (hash-map :tanken.station/adac-id adac-id
+                      :tanken.station/name name
                       :tanken.station/betreiber betreiber
                       :tanken.station/strasse strasse
                       :tanken.station/plz plz
@@ -112,6 +116,26 @@ represents the number: 1.549"
                :tanken.preismeldung/zeitpunkt (parse-date zeitpunkt)}))
        ))
 
+(defn tankstelle-tx 
+"datomic Transaction für die  Tankstelle mit der 'adac-id'"
+  [adac-id]
+  (as-> (adac-url adac-id) x
+(fetch-page x)
+(extract-tankstelle x adac-id)
+  (assoc x :db/id (api/tempid :db.part/user))))
+
+(defn stations-tx 
+  "Liefert eine Transaction für alle Tanstellen"
+  []
+  (as-> adac-ids x
+(map tankstelle-tx x)))
+
+
+
+
+
+
+
 
 (defn collect-data
   "Liefert eine Liste von Maps. Jede Map hat die Keys
@@ -122,6 +146,6 @@ represents the number: 1.549"
               (let [page-content (->> adac-id adac-url fetch-page)]
                 (hash-map :adac-id adac-id
                           :preismeldungen (extract-prices page-content)
-                          :tankstelle (extract-tankstelle page-content)
+                          :tankstelle (extract-tankstelle page-content adac-id)
                           :opening-times (extract-zeiten page-content)
                           ))))))
