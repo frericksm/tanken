@@ -1,12 +1,18 @@
 {:mvn/repos
  {"my.datomic.com" {:url "https://my.datomic.com/repo"}}
  
- :paths [ "src" "resources"]
+ :paths [ "src" "test" "resources" "dev"]
  :deps
- 
  {enlive {:mvn/version "1.1.6"}
   incanter/incanter-charts {:mvn/version "1.9.3"}
   com.rpl/specter {:mvn/version  "1.1.2"}
   com.datomic/datomic-pro {:mvn/version "0.9.5786"}
-  com.datomic/client-pro {:mvn/version "0.8.28"}}
- }
+  com.datomic/client-pro {:mvn/version "0.8.28"}
+  
+  org.clojure/tools.namespace {:mvn/version  "0.2.3"}
+  org.clojure/java.classpath {:mvn/version "0.2.0"}
+  }
+ :aliases
+ {:run {:main-opts ["-m" "tanken-daten.core"]}
+  
+  }}

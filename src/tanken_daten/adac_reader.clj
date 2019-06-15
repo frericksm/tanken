@@ -104,7 +104,7 @@ represents the number: 1.549"
 
 (defn extract-prices
   "Returns the current prices of the petrol station with the 'id' as map with keys :tankstelle :tanken.preismeldung/sorte :tanken.preismeldung/preis :tanken.preismeldung/zeitpunkt"
-  [page-content]
+  [page-content adac-id ]
   (->> (e/select page-content [:#wucKraftstoffpreiseDeDetail-2 :table  :tr :td] )
        (map :content)
        (map extract-val)
@@ -113,6 +113,7 @@ represents the number: 1.549"
        (map (fn [[treibstoff preis zeitpunkt]]
               {:tanken.preismeldung/sorte treibstoff
                :tanken.preismeldung/preis preis
+               :tanken.preismeldung/station [:tanken.station/adac-id adac-id] 
                :tanken.preismeldung/zeitpunkt (parse-date zeitpunkt)}))
        ))
 
@@ -141,11 +142,12 @@ represents the number: 1.549"
   "Liefert eine Liste von Maps. Jede Map hat die Keys
 :adac-id, :preismeldungen, :tankstelle und :opening-times"
   [adac-ids]
-  (->> adac-ids
+  (as-> adac-ids x
        (map (fn [adac-id]
               (let [page-content (->> adac-id adac-url fetch-page)]
                 (hash-map :adac-id adac-id
-                          :preismeldungen (extract-prices page-content)
+                          :preismeldungen (extract-prices page-content adac-id)
                           :tankstelle (extract-tankstelle page-content adac-id)
                           :opening-times (extract-zeiten page-content)
-                          ))))))
+                          ))) x)))
+
