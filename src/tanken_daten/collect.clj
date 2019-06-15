@@ -1,20 +1,21 @@
 (ns tanken-daten.collect
   (:use [clojure.pprint])
   (:require [tanken-daten.storage :as storage]
+[tanken-daten.queries :as queries]
             [tanken-daten.adac-reader :as adac]
             [tanken-daten.datomic-utils :as datomic-utils]
             [datomic.api :as api]
+            [ com.rpl.specter :as specter  :refer :all]
             [clojure.set :as set]))
+
 
 
 (defn alle-tankstellen
   "Liefert alle Entities, die ein Attribut :tanken.station/adac-id besitzen"
   [db]
-  (->> (api/q '[:find ?e 
-                :in $
-                :where [ ?e :tanken.station/adac-id ]]
-              db)
-       (map #(api/entity db (first %)))))
+  (as-> (queries/alle-tankstellen-query) x
+(api/q x db)
+(map #(api/entity db (first %)) x )))
 
 (defn alle-preismeldungen
   "Liefert alle Entities zu Preismeldungen.
@@ -39,37 +40,51 @@ Das sind Entities mit dem Attribut :tanken.preismeldung/id"
 (defn insert [vec pos item] 
   (apply conj (subvec vec 0 pos) item (subvec vec pos)))
 
+(defn preismeldung-db-id 
+  "Liefert die entity-id der Preismeldung der Tankstelle mit der 'adac-id zur 'sorte"
+  [db sorte station-lookup-ref]
+  (let [adac-id (second station-lookup-ref )]
+  (as-> (queries/preismeldung-db-id-query sorte adac-id) x
+(api/q x db) x
+(if (empty? x) 
+(datomic-utils/tempid)
+(first x)))))
+
 (defn transform-to-tx
   "Vervollständigt die Transaktionen um die :db/id und die Beziehungen zwischen den Entities"
-  [a2e {:keys [adac-id] :as daten}]
-  (let [e-id  (get a2e adac-id)]
-    (-> daten
-        (update-in [:tankstelle]
-                   (fn [t] (-> t
-                              (assoc :db/id e-id)
-                              (assoc :tanken.station/adac-id adac-id))))
+  [db daten]
+(as-> daten x
+(specter/transform [:preismeldungen ALL] 
+ (fn [{:tanken.preismeldung/keys [sorte station] :as m}] 
+   (assoc m :db/id (preismeldung-db-id db  sorte station))) x)
 
-        (update-in [:opening-times]
+
+
+
+  #_(update-in [:tankstelle] ;; TODO: mit specter transformieren
+                   (fn [t] (-> t
+                              (assoc :db/id [:tanken.station/adac-id adac-id]))))
+
+        #_(update-in [:opening-times]
                    (fn [ot] 
                      (->> ot
-                          (map #(assoc % :db/id e-id)))))
+                          (map #(assoc % :db/id e-id)))))) ;; TODO e-id ersetzen
         
-        (update-in [:preismeldungen]
-                   (fn [preismeldungen]
-                     (->> preismeldungen
-                          (map #(assoc % :db/id (datomic-utils/tempid)))
-                          (map #(assoc % :tanken.preismeldung/station [:tanken.station/adac-id adac-id]))
-                         ))))))
+
+;; TODO in jede Preismeldung die db/id hinzufügen
+
+
+)
 
 (defn extract-data
   ""
-  [conn adac-ids]
-  (let [alle-tankstellen-db (alle-tankstellen (datomic.api/db conn))
-        alle-adac-ids-db    (->> alle-tankstellen-db (map :tanken.station/adac-id))
-        alle-adac-ids       (set/union alle-adac-ids-db adac-ids)
-        a2e                 (adacid-to-dbid alle-tankstellen-db alle-adac-ids)
-        data                (adac/collect-data alle-adac-ids)]
-    (map (partial transform-to-tx a2e) data)))
+  [db  adac-ids]
+  (let [alle-tankstellen-db (alle-tankstellen db)
+        alle-adac-ids    (->> alle-tankstellen-db (map :tanken.station/adac-id))
+        data                (adac/collect-data alle-adac-ids)
+        result (map (partial transform-to-tx db) data)
+        ]
+result ))
 
 
 (defn to-tx
@@ -108,11 +123,36 @@ Das sind Entities mit dem Attribut :tanken.preismeldung/id"
 
 
 
+(defn update-tankstellen
+  "Aktualisiert die beschreibenden Daten einer Tankstelle(Adresse,..."
+  [conn data]
 
-(defn collect 
+;; TODO implementieren 
+  #_(->> data
+               (map to-tx)
+               (apply concat)
+               (flatten)
+               ;((fn [d] (prn d) d))
+               (datomic-utils/load-data conn)
+               )
+  )
+
+(defn update-opening-times
+  "Aktualisiert die Öffnungszeiten einer Tankstelle"
+  [conn data]
+;; TODO implementieren
+  #_(->> data
+               (map to-tx)
+               (apply concat)
+               (flatten)
+               ;((fn [d] (prn d) d))
+               (datomic-utils/load-data conn)
+               )
+  )
+(defn collect-aktuelle-preise 
   "Sammelt die Daten zu den den 'adac-ids und speichert sie in der datomic connection 'conn"
-  [conn adac-ids]
-  (->> (extract-data conn adac-ids)
+  [conn data]
+  (->> data
                (map to-tx)
                (apply concat)
                (flatten)
@@ -124,11 +164,15 @@ Das sind Entities mit dem Attribut :tanken.preismeldung/id"
   "Liefert eine Funktion, die collect  aufruft"
   [conn adac-ids]
   (fn []
-    (do (println "\nRunning ...")
-        (try (collect conn adac-ids)
+    (do (println "\nRunning ..." (java.util.Date.))
+(let [ db (datomic.api/db conn)
+      data (extract-data db adac-ids)]
+        (try (update-tankstellen conn data)
+             (update-opening-times conn data)
+             (collect-aktuelle-preise conn data)
           
           (catch Exception e
-            (println "caught exception: " (.getMessage e)))))))
+            (println "caught exception: " e (.getMessage e))))))))
 
 (defn start 
   "Startet diese Komponente"
@@ -139,8 +183,8 @@ Das sind Entities mit dem Attribut :tanken.preismeldung/id"
 stations-tx (adac/stations-tx)]
 
 (store-stations-to-db conn stations-tx ) ;; lade alle tankstelle in die db
-(task)     ;; führe einmal die taks aus
-#_(.scheduleWithFixedDelay scheduler task 0 1 java.util.concurrent.TimeUnit/MINUTES) ;; führe die Task regelmässig aus
+(task)     ;; führe einmal die task aus
+(.scheduleWithFixedDelay scheduler task 0 1 java.util.concurrent.TimeUnit/MINUTES) ;; führe die Task regelmässig aus
   system))
 
 (defn stop [system]
