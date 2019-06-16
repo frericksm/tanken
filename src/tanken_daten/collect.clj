@@ -48,7 +48,9 @@ Das sind Entities mit dem Attribut :tanken.preismeldung/id"
 (api/q x db) x
 (if (empty? x) 
 (datomic-utils/tempid)
-(first x)))))
+(ffirst x) ;; TODO first oder ffirst aufrufen??  welche struktur hat x hier? 
+
+))))
 
 (defn transform-to-tx
   "Vervollständigt die Transaktionen um die :db/id und die Beziehungen zwischen den Entities"
@@ -84,6 +86,7 @@ Das sind Entities mit dem Attribut :tanken.preismeldung/id"
         data                (adac/collect-data alle-adac-ids)
         result (map (partial transform-to-tx db) data)
         ]
+
 result ))
 
 
