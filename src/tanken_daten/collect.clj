@@ -184,7 +184,7 @@ stations-tx (adac/stations-tx)]
 
 (store-stations-to-db conn stations-tx ) ;; lade alle tankstelle in die db
 (task)     ;; führe einmal die task aus
-(.scheduleWithFixedDelay scheduler task 0 1 java.util.concurrent.TimeUnit/MINUTES) ;; führe die Task regelmässig aus
+(.scheduleWithFixedDelay scheduler task 0 13 java.util.concurrent.TimeUnit/MINUTES) ;; führe die Task regelmässig aus
   system))
 
 (defn stop [system]
